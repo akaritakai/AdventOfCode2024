@@ -12,4 +12,3 @@ fn main() {
         println!("Day {:02} Part 2: {}", i + 1, puzzle.solve_part_2());
     }
 }
-

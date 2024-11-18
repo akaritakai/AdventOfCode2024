@@ -12,4 +12,3 @@ ENV LLVM_PROFILE_FLAG="/opt/aoc/coverage/%p-%m.profraw"
 
 RUN cargo test --release
 RUN grcov . --binary-path ./target/release/ -s . -t lcov --branch --ignore-not-existing -o lcov.info
-
