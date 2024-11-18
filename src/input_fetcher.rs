@@ -1,9 +1,9 @@
+use reqwest::blocking::Client;
 use reqwest::StatusCode;
 use std::error::Error;
 use std::fs;
-use std::fs::File;
-use std::io::{BufReader, Read};
 use std::path::{Path, PathBuf};
+use std::sync::LazyLock;
 
 pub struct InputFetcher {
     /// The base URL for Advent of Code (by default 'https://adventofcode.com').
@@ -27,7 +27,7 @@ impl InputFetcher {
     /// Creates an InputFetcher using the specified values. Used only for testing.
     pub fn create_custom(base_url: &str, input_path: &Path, session_token_path: &Path) -> Self {
         Self {
-            base_url: base_url.to_string(),
+            base_url: base_url.into(),
             input_path: input_path.to_path_buf(),
             session_token_path: session_token_path.to_path_buf(),
         }
@@ -37,35 +37,28 @@ impl InputFetcher {
     /// and if that fails, will try to fetch it from the Advent of Code website.
     pub fn get_input(&self, day: u8) -> Result<String, Box<dyn Error>> {
         let input_file_path = self.input_path.join(format!("{:02}", day));
-        if input_file_path.exists() {
-            Ok(fs::read_to_string(input_file_path)?)
-        } else {
+        fs::read_to_string(input_file_path.clone()).or_else(|_| {
             let session_token = self.get_session_token()?;
             let input = self.fetch_input(day, &session_token)?;
-            fs::write(input_file_path, &input)?;
+            let _ = fs::write(input_file_path, &input);
             Ok(input)
-        }
+        })
     }
 
     fn get_session_token(&self) -> Result<String, Box<dyn Error>> {
-        let session_token_file = File::open(&self.session_token_path)?;
-        let mut session_token_reader = BufReader::new(session_token_file);
-        let mut session_token = String::new();
-        session_token_reader.read_to_string(&mut session_token)?;
-        Ok(session_token)
+        fs::read_to_string(&self.session_token_path).map_err(|e| e.into())
     }
 
     fn fetch_input(&self, day: u8, session_token: &str) -> Result<String, Box<dyn Error>> {
+        static CLIENT: LazyLock<Client> = LazyLock::new(Client::new);
         let url = format!("{}{}", self.base_url, url_path(day));
-        let client = reqwest::blocking::Client::new();
-        let response = client
+        let response = CLIENT
             .get(url)
             .header("Cookie", format!("session={}", session_token))
             .send()?;
-        if response.status() == StatusCode::OK {
-            Ok(response.text()?)
-        } else {
-            Err(format!("Failed to fetch input: {}", response.status()).into())
+        match response.status() {
+            StatusCode::OK => Ok(response.text()?),
+            status => Err(format!("Failed to fetch input: {}", status).into()),
         }
     }
 }
