@@ -40,6 +40,9 @@ impl InputFetcher {
         fs::read_to_string(input_file_path.clone()).or_else(|_| {
             let session_token = self.get_session_token()?;
             let input = self.fetch_input(day, &session_token)?;
+            if let Some(parent) = input_file_path.parent() {
+                fs::create_dir_all(parent)?;
+            }
             let _ = fs::write(input_file_path, &input);
             Ok(input)
         })
