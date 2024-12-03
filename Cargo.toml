@@ -5,6 +5,7 @@ authors = ["Olivia Kaufman <olivia@olivia.wtf>"]
 edition = "2021"
 
 [dependencies]
+lazy-regex = "3.3.0"
 reqwest = {version = "0.12.9", features = ["blocking"]}
 
 [dev-dependencies]
