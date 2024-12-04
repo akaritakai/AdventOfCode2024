@@ -7,6 +7,11 @@ pub struct Day {
 }
 
 impl Puzzle for Day {
+    /// We are given two lists of integers and asked to find the total Manhattan distance between
+    /// the two lists in their sorted orders.
+    ///
+    /// Time complexity: O(n log n)
+    /// Auxiliary space complexity: O(1)
     fn solve_part_1(&self) -> String {
         let mut left = self.left.clone();
         let mut right = self.right.clone();
@@ -19,14 +24,19 @@ impl Puzzle for Day {
             .to_string()
     }
 
+    /// We are given a set of two lists and asked to calculate a similarity score based on element
+    /// frequency.
+    ///
+    /// Time complexity: O(n)
+    /// Auxiliary space complexity: O(n)
     fn solve_part_2(&self) -> String {
         let mut freq = HashMap::new();
-        for r in self.right.iter() {
-            *freq.entry(r).or_insert(0) += 1;
+        for &num in &self.right {
+            *freq.entry(num).or_insert(0) += 1;
         }
         self.left
             .iter()
-            .filter_map(|&i| freq.get(&i).map(|&c| i * c))
+            .map(|&num| num * freq.get(&num).copied().unwrap_or(0))
             .sum::<i32>()
             .to_string()
     }
@@ -34,8 +44,7 @@ impl Puzzle for Day {
 
 impl Day {
     pub fn create(input: &str) -> Box<dyn Puzzle> {
-        let mut left = Vec::new();
-        let mut right = Vec::new();
+        let (mut left, mut right) = (Vec::new(), Vec::new());
         for line in input.lines() {
             let mut parts = line.split_whitespace();
             left.push(parts.next().unwrap().parse().unwrap());

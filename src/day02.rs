@@ -5,6 +5,10 @@ pub struct Day {
 }
 
 impl Puzzle for Day {
+    /// We're given sequences of integers and asked to determine if they meet certain properties.
+    ///
+    /// Time complexity: O(n) per report
+    /// Auxiliary space complexity: O(1)
     fn solve_part_1(&self) -> String {
         self.levels
             .iter()
@@ -13,6 +17,11 @@ impl Puzzle for Day {
             .to_string()
     }
 
+    /// We're given sequences of integers and asked to determine if they would meet certain
+    /// properties if at most one element were removed.
+    ///
+    /// Time complexity: O(n^2) per report (can be optimized to O(n)).
+    /// Auxiliary space complexity: O(n) per report (can be optimized to O(1)).
     fn solve_part_2(&self) -> String {
         self.levels
             .iter()
@@ -27,9 +36,13 @@ fn is_safe_with_removal(level: &[i32]) -> bool {
         return true;
     }
     for i in 0..level.len() {
-        let mut modified = level.to_vec();
-        modified.remove(i);
-        if is_safe(&modified) {
+        if is_safe(
+            &level
+                .iter()
+                .enumerate()
+                .filter_map(|(index, &val)| if index == i { None } else { Some(val) })
+                .collect::<Vec<_>>(),
+        ) {
             return true;
         }
     }
@@ -56,14 +69,14 @@ fn is_safe(level: &[i32]) -> bool {
 
 impl Day {
     pub fn create(input: &str) -> Box<dyn Puzzle> {
-        let mut levels = Vec::new();
-        for line in input.lines() {
-            let mut level = Vec::new();
-            for part in line.split_whitespace() {
-                level.push(part.parse().unwrap());
-            }
-            levels.push(level);
-        }
+        let levels = input
+            .lines()
+            .map(|line| {
+                line.split_whitespace()
+                    .map(|num| num.parse().unwrap())
+                    .collect()
+            })
+            .collect();
         Box::new(Day { levels })
     }
 }

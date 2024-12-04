@@ -6,6 +6,11 @@ pub struct Day {
 }
 
 impl Puzzle for Day {
+    /// We're given a string to parse that contains multiply instructions, and we're asked to find
+    /// the sum of the results of each multiplication.
+    ///
+    /// Time complexity: O(n)
+    /// Auxiliary space complexity: O(1)
     fn solve_part_1(&self) -> String {
         let re = regex!(r"mul\((\d+),(\d+)\)");
         re.captures_iter(&self.memory)
@@ -14,6 +19,12 @@ impl Puzzle for Day {
             .to_string()
     }
 
+    /// We're given a string to parse that contains multiply instructions and state instructions,
+    /// and we're asked to find the sum of the results of each multiplication that takes place in a
+    /// given state.
+    ///
+    /// Time complexity: O(n)
+    /// Auxiliary space complexity: O(1)
     fn solve_part_2(&self) -> String {
         let re = regex!(r"(?:do\(\))|(?:don't\(\))|mul\((\d+),(\d+)\)");
         let mut sum = 0;

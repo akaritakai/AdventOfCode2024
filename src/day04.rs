@@ -5,6 +5,11 @@ pub struct Day {
 }
 
 impl Puzzle for Day {
+    /// We're given a grid of characters and asked to count the number of occurrences of a string
+    /// in any direction.
+    ///
+    /// Time complexity: O(n*m)
+    /// Auxiliary space complexity: O(1)
     fn solve_part_1(&self) -> String {
         let mut count = 0;
         for row in 0..self.grid.len() {
@@ -15,6 +20,11 @@ impl Puzzle for Day {
         count.to_string()
     }
 
+    /// We're given a grid of characters and asked to count the number of occurrences of a
+    /// particular pattern in the grid.
+    ///
+    /// Time complexity: O(n*m)
+    /// Auxiliary space complexity: O(1)
     fn solve_part_2(&self) -> String {
         let mut count = 0;
         for row in 0..self.grid.len() {
@@ -28,67 +38,55 @@ impl Puzzle for Day {
     }
 }
 
-static XMAS: &str = "XMAS";
-
 fn count_xmas(grid: &[Vec<char>], row: usize, col: usize) -> i32 {
-    let mut count = 0;
-    for drow in -1..=1 {
-        for dcol in -1..=1 {
-            if drow == 0 && dcol == 0 {
-                continue;
-            }
-            if is_xmas(grid, row as isize, col as isize, (drow, dcol)) {
-                count += 1;
-            }
-        }
-    }
-    count
+    const DIRECTIONS: [(i8, i8); 8] = [
+        (-1, -1),
+        (-1, 0),
+        (-1, 1),
+        (0, -1),
+        (0, 1),
+        (1, -1),
+        (1, 0),
+        (1, 1),
+    ];
+    DIRECTIONS
+        .iter()
+        .filter(|&&dir| is_xmas(grid, row as isize, col as isize, dir))
+        .count() as i32
 }
 
 fn is_xmas(grid: &[Vec<char>], mut row: isize, mut col: isize, dir: (i8, i8)) -> bool {
-    let mut i = 0;
-    while in_bounds(grid, row, col) && i < XMAS.len() {
-        if grid[row as usize][col as usize] != XMAS.chars().nth(i).unwrap() {
+    const XMAS: &str = "XMAS";
+    for expected in XMAS.chars() {
+        if !in_bounds(grid, row, col) || grid[row as usize][col as usize] != expected {
             return false;
         }
         row += dir.0 as isize;
         col += dir.1 as isize;
-        i += 1;
     }
-    i == 4
+    true
 }
 
 fn is_x_mas(grid: &[Vec<char>], row: isize, col: isize) -> bool {
-    if grid[row as usize][col as usize] != 'A'
-        || !in_bounds(grid, row - 1, col - 1)
-        || !in_bounds(grid, row - 1, col + 1)
-        || !in_bounds(grid, row + 1, col - 1)
-        || !in_bounds(grid, row + 1, col + 1)
-    {
+    if grid[row as usize][col as usize] != 'A' {
         return false;
     }
-    let up_left = grid[(row - 1) as usize][(col - 1) as usize];
-    let up_right = grid[(row - 1) as usize][(col + 1) as usize];
-    let down_left = grid[(row + 1) as usize][(col - 1) as usize];
-    let down_right = grid[(row + 1) as usize][(col + 1) as usize];
-    let mut matches = 0;
-    if up_left == 'M' && down_right == 'S' {
-        matches += 1;
-    }
-    if up_left == 'S' && down_right == 'M' {
-        matches += 1;
-    }
-    if up_right == 'M' && down_left == 'S' {
-        matches += 1;
-    }
-    if up_right == 'S' && down_left == 'M' {
-        matches += 1;
-    }
-    matches == 2
+    let diagonals = [
+        ((row - 1, col - 1), (row + 1, col + 1)),
+        ((row - 1, col + 1), (row + 1, col - 1)),
+    ];
+    diagonals.iter().all(|&(loc1, loc2)| {
+        if !in_bounds(grid, loc1.0, loc1.1) || !in_bounds(grid, loc2.0, loc2.1) {
+            return false;
+        }
+        let val1 = grid[loc1.0 as usize][loc1.1 as usize];
+        let val2 = grid[loc2.0 as usize][loc2.1 as usize];
+        (val1 == 'M' && val2 == 'S') || (val1 == 'S' && val2 == 'M')
+    })
 }
 
 fn in_bounds(grid: &[Vec<char>], row: isize, col: isize) -> bool {
-    row >= 0 && row < grid.len() as isize && col >= 0 && col < grid[0].len() as isize
+    row >= 0 && (row as usize) < grid.len() && col >= 0 && (col as usize) < grid[0].len()
 }
 
 impl Day {
