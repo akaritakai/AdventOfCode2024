@@ -2,8 +2,8 @@
 
 [![Build Status](https://github.com/akaritakai/AdventOfCode2024/actions/workflows/main.yml/badge.svg)](https://github.com/akaritakai/AdventOfCode2024/actions)
 [![Code Coverage](https://img.shields.io/codecov/c/github/akaritakai/AdventOfCode2024.svg)](https://codecov.io/gh/akaritakai/AdventOfCode2024)
-![Stars](https://img.shields.io/badge/gold%20stars%20⭐-8-yellow)
-![Days Completed](https://img.shields.io/badge/days%20completed-4-green)
+![Stars](https://img.shields.io/badge/gold%20stars%20⭐-10-yellow)
+![Days Completed](https://img.shields.io/badge/days%20completed-5-green)
 
 This repo contains my Advent of Code 2024 solutions in Rust. After providing it with your puzzle inputs (or your
 session token), running the program will print out the answers to all currently solved days of the puzzle. A Docker image is provided to ensure compatibility with machines that do not want to install dependencies.
@@ -23,6 +23,8 @@ Day 03 Part 1: 165225049
 Day 03 Part 2: 108830766
 Day 04 Part 1: 2560
 Day 04 Part 2: 1910
+Day 05 Part 1: 5374
+Day 05 Part 2: 4260
 ```
 
 ## Docker Instructions
