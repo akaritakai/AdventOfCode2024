@@ -43,17 +43,23 @@ impl Disk {
                 continue;
             }
             if i % 2 == 0 {
-                files.insert(size..size+c, i / 2);
+                files.insert(size..size + c, i / 2);
             }
             size += c;
         }
-        Self { files, size: 0..size }
+        Self {
+            files,
+            size: 0..size,
+        }
     }
 
     fn defrag_blocks(&mut self) {
         loop {
             let empty = self.files.gaps(&self.size).next();
-            let file = self.files.last_range_value().map(|(range, &id)| (range.clone(), id));
+            let file = self
+                .files
+                .last_range_value()
+                .map(|(range, &id)| (range.clone(), id));
             if empty.is_none() || file.is_none() {
                 return;
             }
@@ -63,10 +69,10 @@ impl Disk {
                 return;
             }
             if file.len() <= empty.len() {
-                self.files.remove(file.clone()); // Remove the old file
-                self.files.insert(empty.start..empty.start+file.len(), id);
+                self.files.remove(file.clone());
+                self.files.insert(empty.start..empty.start + file.len(), id);
             } else {
-                self.files.remove(file.end-empty.len()..file.end);
+                self.files.remove(file.end - empty.len()..file.end);
                 self.files.insert(empty, id);
             }
         }
@@ -80,7 +86,7 @@ impl Disk {
                 }
                 if gap.len() >= range.len() {
                     self.files.remove(range.clone());
-                    self.files.insert(gap.start..gap.start+range.len(), id);
+                    self.files.insert(gap.start..gap.start + range.len(), id);
                     break;
                 }
             }
@@ -88,10 +94,13 @@ impl Disk {
     }
 
     fn checksum(&self) -> usize {
-        self.files.iter().map(|(range, &id)| {
-            let length = range.end - range.start;
-            id * length * (2 * range.start + length - 1) / 2
-        }).sum()
+        self.files
+            .iter()
+            .map(|(range, &id)| {
+                let length = range.end - range.start;
+                id * length * (2 * range.start + length - 1) / 2
+            })
+            .sum()
     }
 }
 
