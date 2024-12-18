@@ -8,6 +8,7 @@ edition = "2021"
 itertools = "0.13.0"
 lazy-regex = "3.3.0"
 petgraph = "0.6.5"
+rangemap = "1.5.1"
 reqwest = {version = "0.12.9", features = ["blocking"]}
 
 [dev-dependencies]
