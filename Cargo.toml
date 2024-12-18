@@ -5,6 +5,7 @@ authors = ["Olivia Kaufman <olivia@olivia.wtf>"]
 edition = "2021"
 
 [dependencies]
+geo = "0.29.3"
 itertools = "0.13.0"
 lazy-regex = "3.3.0"
 petgraph = "0.6.5"
