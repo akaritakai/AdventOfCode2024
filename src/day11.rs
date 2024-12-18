@@ -92,6 +92,6 @@ mod tests {
     fn test_solve_part_2() {
         let input = std::fs::read_to_string(PathBuf::from("resources/tests/11")).unwrap();
         let puzzle = Day::create(&input);
-        assert_eq!(puzzle.solve_part_2(), "TODO");
+        assert_eq!(puzzle.solve_part_2(), "220357186726677");
     }
 }
