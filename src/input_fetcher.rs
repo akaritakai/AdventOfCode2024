@@ -1,5 +1,5 @@
-use reqwest::blocking::Client;
 use reqwest::StatusCode;
+use reqwest::blocking::Client;
 use std::error::Error;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -36,7 +36,7 @@ impl InputFetcher {
     /// Returns the input for the given day. Will try to return it from the local file system first,
     /// and if that fails, will try to fetch it from the Advent of Code website.
     pub fn get_input(&self, day: u8) -> Result<String, Box<dyn Error>> {
-        let input_file_path = self.input_path.join(format!("{:02}", day));
+        let input_file_path = self.input_path.join(format!("{day:02}"));
         fs::read_to_string(input_file_path.clone()).or_else(|_| {
             let session_token = self.get_session_token()?;
             let input = self.fetch_input(day, &session_token)?;
@@ -57,24 +57,24 @@ impl InputFetcher {
         let url = format!("{}{}", self.base_url, url_path(day));
         let response = CLIENT
             .get(url)
-            .header("Cookie", format!("session={}", session_token))
+            .header("Cookie", format!("session={session_token}"))
             .send()?;
         match response.status() {
             StatusCode::OK => Ok(response.text()?),
-            status => Err(format!("Failed to fetch input: {}", status).into()),
+            status => Err(format!("Failed to fetch input: {status}").into()),
         }
     }
 }
 
 fn url_path(day: u8) -> String {
-    format!("/2024/day/{}/input", day)
+    format!("/2024/day/{day}/input")
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::input_fetcher::{url_path, InputFetcher};
-    use httpmock::prelude::*;
+    use crate::input_fetcher::{InputFetcher, url_path};
     use httpmock::Mock;
+    use httpmock::prelude::*;
     use std::path::Path;
     use tempfile::{NamedTempFile, TempDir};
 
@@ -279,10 +279,10 @@ mod tests {
 
     fn random_string(charset: &str, length: usize) -> String {
         use rand::Rng;
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
         (0..length)
             .map(|_| {
-                let index = rng.gen_range(0..charset.len());
+                let index = rng.random_range(0..charset.len());
                 charset.chars().nth(index).unwrap()
             })
             .collect()

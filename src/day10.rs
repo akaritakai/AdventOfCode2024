@@ -1,7 +1,8 @@
 use crate::puzzle::Puzzle;
 use itertools::iproduct;
-use petgraph::algo::{all_simple_paths, has_path_connecting, DfsSpace};
+use petgraph::algo::{DfsSpace, all_simple_paths, has_path_connecting};
 use petgraph::graph::{Graph, NodeIndex};
+use std::hash::RandomState;
 
 pub struct Day {
     graph: Graph<(usize, usize, usize), ()>,
@@ -17,7 +18,7 @@ impl Puzzle for Day {
     fn solve_part_1(&self) -> String {
         let mut space = DfsSpace::new(&self.graph);
         iproduct!(self.starts.iter(), self.ends.iter())
-            .filter(|(&start, &end)| self.possibly_reachable(start, end))
+            .filter(|&(&start, &end)| self.possibly_reachable(start, end))
             .map(|(&start, &end)| {
                 if has_path_connecting(&self.graph, start, end, Some(&mut space)) {
                     1
@@ -35,9 +36,10 @@ impl Puzzle for Day {
     /// Auxiliary space complexity: TODO
     fn solve_part_2(&self) -> String {
         iproduct!(self.starts.iter(), self.ends.iter())
-            .filter(|(&start, &end)| self.possibly_reachable(start, end))
+            .filter(|&(&start, &end)| self.possibly_reachable(start, end))
             .map(|(&start, &end)| {
-                all_simple_paths::<Vec<_>, _>(&self.graph, start, end, 8, Some(8)).count()
+                all_simple_paths::<Vec<_>, _, RandomState>(&self.graph, start, end, 8, Some(8))
+                    .count()
             })
             .sum::<usize>()
             .to_string()

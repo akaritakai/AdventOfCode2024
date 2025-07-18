@@ -1,5 +1,6 @@
 use crate::puzzle::Puzzle;
-use geo::{polygon, Area, BooleanOps, CoordsIter, Euclidean, Length, MultiPolygon};
+use geo::line_measures::LengthMeasurable;
+use geo::{Area, BooleanOps, CoordsIter, Euclidean, MultiPolygon, polygon};
 use itertools::iproduct;
 use petgraph::unionfind::UnionFind;
 use std::collections::HashMap;
@@ -21,11 +22,11 @@ impl Puzzle for Day {
                 let perimeter = multi_polygon
                     .iter()
                     .map(|polygon| {
-                        polygon.exterior().length::<Euclidean>() as usize
+                        polygon.exterior().length(&Euclidean) as usize
                             + polygon
                                 .interiors()
                                 .iter()
-                                .map(|interior| interior.length::<Euclidean>() as usize)
+                                .map(|interior| interior.length(&Euclidean) as usize)
                                 .sum::<usize>()
                     })
                     .sum::<usize>();

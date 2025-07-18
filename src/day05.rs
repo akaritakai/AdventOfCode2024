@@ -1,7 +1,7 @@
 use crate::puzzle::Puzzle;
+use petgraph::Graph;
 use petgraph::algo::toposort;
 use petgraph::graph::DiGraph;
-use petgraph::Graph;
 use std::collections::HashMap;
 
 pub struct Day {
