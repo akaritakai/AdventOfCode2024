@@ -274,3 +274,4 @@ mod tests {
         assert_eq!(puzzle.solve_part_2(), "486");
     }
 }
+ 
