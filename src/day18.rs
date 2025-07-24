@@ -1,6 +1,6 @@
 use crate::puzzle::Puzzle;
-use petgraph::prelude::NodeIndex;
 use petgraph::Graph;
+use petgraph::prelude::NodeIndex;
 
 pub struct Day {
     bytes: Vec<(usize, usize)>,
@@ -93,7 +93,7 @@ impl Memory {
         for i in 0..=self.size {
             for j in 0..=self.size {
                 if self.graph[i][j] {
-                    nodes[i][j] =  graph.add_node((i, j));
+                    nodes[i][j] = graph.add_node((i, j));
                 }
             }
         }
@@ -121,13 +121,16 @@ impl Memory {
         // Find the path
         let start = nodes[0][0];
         let end = nodes[self.size][self.size];
-        let path = petgraph::algo::astar(&graph, start,
-                                         |finish| finish == end,
-                                         |e| *e.weight(),
-                                         |n| {
-                                             let &(i, j) = graph.node_weight(n).unwrap();
-                                             2 * self.size - i - j
-                                         });
+        let path = petgraph::algo::astar(
+            &graph,
+            start,
+            |finish| finish == end,
+            |e| *e.weight(),
+            |n| {
+                let &(i, j) = graph.node_weight(n).unwrap();
+                2 * self.size - i - j
+            },
+        );
         if let Some((distance, _)) = path {
             Some(distance)
         } else {
@@ -138,7 +141,9 @@ impl Memory {
 
 impl Day {
     pub fn create(input: &str) -> Box<dyn Puzzle> {
-        Box::new(Day { bytes: parse_input(input) })
+        Box::new(Day {
+            bytes: parse_input(input),
+        })
     }
 }
 

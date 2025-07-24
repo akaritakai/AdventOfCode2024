@@ -18,7 +18,11 @@ impl Puzzle for Day {
     fn solve_part_1(&self) -> String {
         let mut vm = ClassicVm::new(self.a, self.b, self.c, self.program.clone());
         let output = vm.run();
-        output.iter().map(|x| x.to_string()).collect::<Vec<String>>().join(",")
+        output
+            .iter()
+            .map(|x| x.to_string())
+            .collect::<Vec<String>>()
+            .join(",")
     }
 
     /// TODO
@@ -42,7 +46,13 @@ struct ClassicVm {
 
 impl ClassicVm {
     fn new(a: i32, b: i32, c: i32, program: Vec<i32>) -> Self {
-        ClassicVm { ip: 0, a, b, c, program }
+        ClassicVm {
+            ip: 0,
+            a,
+            b,
+            c,
+            program,
+        }
     }
 
     fn combo(&self, x: i32) -> i32 {
@@ -61,11 +71,16 @@ impl ClassicVm {
             let opcode = self.program[self.ip as usize];
             let operand = self.program[self.ip as usize + 1];
             match opcode {
-                /*adv*/ 0 => self.a = self.a >> self.combo(operand),
-                /*bxl*/ 1 => self.b = self.b ^ operand,
+                /*adv*/ 0 => self.a >>= self.combo(operand),
+                /*bxl*/ 1 => self.b ^= operand,
                 /*bst*/ 2 => self.b = self.combo(operand) % 8,
-                /*jnz*/ 3 => if self.a != 0 { self.ip = operand - 2; },
-                /*bxc*/ 4 => self.b = self.b ^ self.c,
+                /*jnz*/
+                3 => {
+                    if self.a != 0 {
+                        self.ip = operand - 2;
+                    }
+                }
+                /*bxc*/ 4 => self.b ^= self.c,
                 /*out*/ 5 => output.push(self.combo(operand) % 8),
                 /*bdv*/ 6 => self.b = self.a >> self.combo(operand),
                 /*cdv*/ 7 => self.c = self.a >> self.combo(operand),
@@ -99,11 +114,11 @@ impl<'ctx> SymbolicVm<'ctx> {
             solver: Optimize::new(ctx),
         }
     }
-    
+
     fn literal(&self, operand: i32) -> BV<'ctx> {
         BV::from_i64(self.context, operand as i64, 128)
     }
-    
+
     fn combo(&self, operand: i32) -> BV<'ctx> {
         match operand {
             0..=3 => self.literal(operand),
@@ -127,21 +142,25 @@ impl<'ctx> SymbolicVm<'ctx> {
                 /*adv*/ 0 => self.a = self.a.bvlshr(&self.combo(operand)),
                 /*bxl*/ 1 => self.b = self.b.bvxor(&self.literal(operand)),
                 /*bst*/ 2 => self.b = self.combo(operand).bvand(&self.literal(7)),
-                /*jnz*/ 3 => {
+                /*jnz*/
+                3 => {
                     if i == self.program.len() {
                         self.solver.assert(&self.a._eq(&self.literal(0)));
                         break;
                     } else {
                         self.ip = operand - 2;
                     }
-                },
+                }
                 /*bxc*/ 4 => self.b = self.b.bvxor(&self.c),
-                /*out*/ 5 => if i < self.program.len() {
+                /*out*/
+                5 => {
+                    if i < self.program.len() {
                         let lhs = self.combo(operand).bvand(&self.literal(7));
                         let rhs = self.literal(self.program[i]);
                         self.solver.assert(&lhs._eq(&rhs));
-                        i += 1; 
-                },
+                        i += 1;
+                    }
+                }
                 /*bdv*/ 6 => self.b = self.a.bvlshr(&self.combo(operand)),
                 /*cdv*/ 7 => self.c = self.a.bvlshr(&self.combo(operand)),
                 _ => unreachable!(),
@@ -151,7 +170,12 @@ impl<'ctx> SymbolicVm<'ctx> {
         self.solver.minimize(&start_a);
         self.solver.check(&[]);
         let model = self.solver.get_model().unwrap();
-        model.eval(&start_a, false).unwrap().as_u64().unwrap().to_string()
+        model
+            .eval(&start_a, false)
+            .unwrap()
+            .as_u64()
+            .unwrap()
+            .to_string()
     }
 }
 
@@ -161,8 +185,16 @@ impl Day {
         let (_, b) = regex_captures!(r#"Register B: (\d+)"#, input).unwrap();
         let (_, c) = regex_captures!(r#"Register C: (\d+)"#, input).unwrap();
         let (_, program) = regex_captures!(r#"Program: (.*)"#, input).unwrap();
-        let program = program.split(",").map(|s| s.trim().parse().unwrap()).collect::<Vec<i32>>();
-        Box::new(Day { a: a.parse().unwrap(), b: b.parse().unwrap(), c: c.parse().unwrap(), program })
+        let program = program
+            .split(",")
+            .map(|s| s.trim().parse().unwrap())
+            .collect::<Vec<i32>>();
+        Box::new(Day {
+            a: a.parse().unwrap(),
+            b: b.parse().unwrap(),
+            c: c.parse().unwrap(),
+            program,
+        })
     }
 }
 

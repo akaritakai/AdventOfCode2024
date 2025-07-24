@@ -1,10 +1,10 @@
 use crate::puzzle::Puzzle;
-use petgraph::graph::NodeIndex;
-use std::collections::{HashMap, HashSet};
 use itertools::Itertools;
 use petgraph::algo::dijkstra;
+use petgraph::graph::NodeIndex;
 use petgraph::prelude::EdgeRef;
 use petgraph::visit::Reversed;
+use std::collections::{HashMap, HashSet};
 
 pub struct Day {
     start: NodeIndex,
@@ -20,7 +20,8 @@ impl Puzzle for Day {
     fn solve_part_1(&self) -> String {
         // Find the shortest path from start to end.
         let paths = dijkstra(&self.graph, self.start, None, |e| *e.weight());
-        self.end.iter()
+        self.end
+            .iter()
             .filter_map(|&end| paths.get(&end))
             .min()
             .unwrap()
@@ -33,15 +34,19 @@ impl Puzzle for Day {
     /// Auxiliary space complexity: TODO
     fn solve_part_2(&self) -> String {
         let dist_s = dijkstra(&self.graph, self.start, None, |e| *e.weight());
-        let &target_cost = self.end.iter()
+        let &target_cost = self
+            .end
+            .iter()
             .filter_map(|&end| dist_s.get(&end))
             .min()
             .unwrap();
         let rev = Reversed(&self.graph);
-        let dist_e = self.end.iter()
+        let dist_e = self
+            .end
+            .iter()
             .map(|&end| dijkstra(&rev, end, None, |e| *e.weight()))
             .collect_vec();
-        
+
         // Find all nodes...
         let mut winners = HashSet::new();
         for v in self.graph.node_indices() {
@@ -57,7 +62,7 @@ impl Puzzle for Day {
                 }
             }
         }
-        winners.iter().count().to_string()
+        winners.len().to_string()
     }
 }
 
@@ -154,7 +159,8 @@ impl Day {
                 col: start.1,
                 facing: (0, 1),
             }],
-            end: vertex_map.iter()
+            end: vertex_map
+                .iter()
                 .filter(|v| v.0.row == end.0 && v.0.col == end.1)
                 .map(|(_, &index)| index)
                 .collect::<Vec<_>>(),
@@ -274,4 +280,3 @@ mod tests {
         assert_eq!(puzzle.solve_part_2(), "486");
     }
 }
- 
